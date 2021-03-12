@@ -36,28 +36,38 @@ import java.util.Map;
 public class BitmapAggregationBuilder extends ValuesSourceAggregationBuilder.LeafOnly<ValuesSource.Bytes, BitmapAggregationBuilder> {
 
     public static final String NAME = "umxbitmap";
+
+    /**
+     * 创建解析对象
+     */
     public static final ObjectParser<BitmapAggregationBuilder, String> PARSER = ObjectParser.fromBuilder(NAME, BitmapAggregationBuilder::new);
 
     static {
         ValuesSourceAggregationBuilder.declareFields(PARSER, false, false, false);
     }
 
-
+    /**
+     * 注册聚合器
+     *
+     * @param builder
+     */
     public static void registerAggregators(ValuesSourceRegistry.Builder builder) {
         BitmapAggregatorFactory.registerAggregators(builder);
     }
 
+    /**
+     * 构造函数
+     *
+     * @param bitmapAggregationBuilder
+     * @param factoriesBuilder
+     * @param metadata
+     */
     public BitmapAggregationBuilder(BitmapAggregationBuilder bitmapAggregationBuilder, Builder factoriesBuilder, Map<String, Object> metadata) {
         super(bitmapAggregationBuilder, factoriesBuilder, metadata);
     }
 
     public BitmapAggregationBuilder(String name) {
         super(name);
-    }
-
-    @Override
-    protected AggregationBuilder shallowCopy(Builder factoriesBuilder, Map<String, Object> metadata) {
-        return new BitmapAggregationBuilder(this, factoriesBuilder, metadata);
     }
 
     /**
@@ -67,16 +77,43 @@ public class BitmapAggregationBuilder extends ValuesSourceAggregationBuilder.Lea
         super(in);
     }
 
+    /**
+     * 需要返回AggregationBuilder
+     *
+     * @param factoriesBuilder
+     * @param metadata
+     * @return
+     */
+    @Override
+    protected AggregationBuilder shallowCopy(Builder factoriesBuilder, Map<String, Object> metadata) {
+        return new BitmapAggregationBuilder(this, factoriesBuilder, metadata);
+    }
+
     @Override
     protected void innerWriteTo(StreamOutput out) {
         // Do nothing, no extra state to write to stream
     }
 
+    /**
+     * 指定默认的字段类型
+     *
+     * @return
+     */
     @Override
     protected ValuesSourceType defaultValueSourceType() {
         return CoreValuesSourceType.BYTES;
     }
 
+    /**
+     * 返回自定义聚合工厂
+     *
+     * @param queryShardContext
+     * @param config
+     * @param parent
+     * @param subFactoriesBuilder
+     * @return
+     * @throws IOException
+     */
     @Override
     protected ValuesSourceAggregatorFactory innerBuild(QueryShardContext queryShardContext, ValuesSourceConfig config, AggregatorFactory parent, Builder subFactoriesBuilder) throws IOException {
         return new BitmapAggregatorFactory(name, config, queryShardContext, parent, subFactoriesBuilder, metadata);
@@ -88,6 +125,11 @@ public class BitmapAggregationBuilder extends ValuesSourceAggregationBuilder.Lea
         return builder;
     }
 
+    /**
+     * 返回聚合器名称
+     *
+     * @return
+     */
     @Override
     public String getType() {
         return NAME;

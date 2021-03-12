@@ -8,6 +8,9 @@ import org.elasticsearch.search.aggregations.ParsedAggregation;
 
 import java.io.IOException;
 
+/**
+ * 解析结果逻辑
+ */
 public class ParsedBitmap extends ParsedAggregation implements BitmapDistinct {
     protected long cardinality;
     protected byte[] bitmapByte;
@@ -41,6 +44,11 @@ public class ParsedBitmap extends ParsedAggregation implements BitmapDistinct {
         declareStatsFields(PARSER);
     }
 
+    /**
+     * 结果解析，要与InternalBitmap.doXContentBody 中的返回字段名称一直
+     *
+     * @param objectParser
+     */
     private static void declareStatsFields(ObjectParser<ParsedBitmap, Void> objectParser) {
         declareAggregationFields(objectParser);
         PARSER.declareLong((agg, value) -> agg.cardinality = value, new ParseField("Cardinality"));

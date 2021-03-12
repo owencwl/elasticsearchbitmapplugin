@@ -31,7 +31,7 @@ public interface BitmapDistinct extends NumericMetricsAggregation.MultiValue {
     long getDistinctValue();
 
     /**
-     * return byte array
+     * return byte array by bitmap
      *
      * @return
      */

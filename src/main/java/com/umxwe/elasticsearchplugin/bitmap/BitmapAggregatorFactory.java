@@ -35,12 +35,26 @@ public class BitmapAggregatorFactory extends ValuesSourceAggregatorFactory {
         super(name, config, context, parent, subFactoriesBuilder, metadata);
     }
 
+    /**
+     * 注册该聚合器，并且指定该聚合器能够处理的字段类型（bytes,numeric etc.）
+     *
+     * @param builder
+     */
     static void registerAggregators(ValuesSourceRegistry.Builder builder) {
         builder.register(BitmapAggregationBuilder.NAME,
-                org.elasticsearch.common.collect.List.of(CoreValuesSourceType.BYTES),
+                org.elasticsearch.common.collect.List.of(CoreValuesSourceType.BYTES, CoreValuesSourceType.NUMERIC),
                 (MetricAggregatorSupplier) BitmapAggregator::new);
     }
 
+    /**
+     * 创建核心的聚合处理逻辑
+     *
+     * @param searchContext
+     * @param parent
+     * @param metadata
+     * @return
+     * @throws IOException
+     */
     @Override
     protected Aggregator createUnmapped(SearchContext searchContext, Aggregator parent, Map<String, Object> metadata) throws IOException {
         return new BitmapAggregator(name, config, searchContext, parent, metadata);
@@ -58,8 +72,6 @@ public class BitmapAggregatorFactory extends ValuesSourceAggregatorFactory {
                     aggregatorSupplier.getClass().toString() + "]");
         }
         return ((MetricAggregatorSupplier) aggregatorSupplier).build(name, config, searchContext, parent, metadata);
-
 //        return new BitmapAggregator(name, config, searchContext, parent,metadata);
-
     }
 }

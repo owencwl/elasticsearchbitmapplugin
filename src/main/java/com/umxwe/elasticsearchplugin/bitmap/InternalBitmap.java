@@ -54,15 +54,12 @@ public class InternalBitmap extends InternalNumericMetricsAggregation.SingleValu
         format = in.readNamedWriteable(DocValueFormat.class);
         byte[] bytes = in.readByteArray();
         this.sum = BitmapUtil.deserializeBitmap(bytes);
-//        LOG.info("InternalBitmap construct: get sum from input stream [{}]", this.sum);
     }
 
     @Override
     protected void doWriteTo(StreamOutput out) throws IOException {
-        /* todo 这里是不是应该写字节数组 */
         out.writeNamedWriteable(format);
         out.writeByteArray(Objects.requireNonNull(BitmapUtil.serializeBitmap(sum)));
-//        LOG.info("InternalBitmap doWriteTo: write sum to output stream [{}]", this.sum);
     }
 
     @Override
@@ -77,7 +74,6 @@ public class InternalBitmap extends InternalNumericMetricsAggregation.SingleValu
 
     @Override
     public long getDistinctValue() {
-//        LOG.info("InternalBitmap getValue: sum [{}]", sum);
         return sum.getLongCardinality();
     }
 
@@ -86,29 +82,33 @@ public class InternalBitmap extends InternalNumericMetricsAggregation.SingleValu
         return sum == null ? null : BitmapUtil.serializeBitmap(sum);
     }
 
-
+    /**
+     * reduce的过程，将每个聚合器中的bitmap进行汇聚
+     *
+     * @param aggregations
+     * @param reduceContext
+     * @return
+     */
     @Override
     public InternalAggregation reduce(List<InternalAggregation> aggregations, ReduceContext reduceContext) {
         Roaring64Bitmap sum = new Roaring64Bitmap();
         for (InternalAggregation aggregation : aggregations) {
             sum.or(((InternalBitmap) aggregation).sum);
         }
-//        LOG.info("InternalBitmap doReduce: aggregations size [{}], sum [{}]", aggregations.size(), sum);
         return new InternalBitmap(name, sum, format, getMetadata());
     }
 
+    /**
+     * 将计算结果返回出去
+     *
+     * @param builder
+     * @param params
+     * @return
+     * @throws IOException
+     */
     @Override
     public XContentBuilder doXContentBody(XContentBuilder builder, Params params) throws IOException {
-        LOG.info("InternalBitmap doXContentBody: content sum value [{}]", sum.getLongCardinality());
-//        List<Long> longList=new ArrayList<>();
-//        sum.forEach(new LongConsumer() {
-//            @Override
-//            public void accept(long value) {
-//                longList.add(value);
-//            }
-//        });
-//        builder.field(CommonFields.VALUE.getPreferredName(),longList);
-
+        LOG.info("InternalBitmap doXContentBody: Cardinalit_size: [{}]", sum.getLongCardinality());
         builder.field(CommonFields.VALUE.getPreferredName(), BitmapUtil.serializeBitmap(sum));
         builder.field("Cardinality", sum.getLongCardinality());
         return builder;
