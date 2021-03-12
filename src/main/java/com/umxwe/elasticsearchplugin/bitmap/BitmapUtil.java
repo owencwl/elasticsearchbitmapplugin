@@ -9,7 +9,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 public class BitmapUtil {
-    private static final Logger LOG = LoggerFactory.getLogger(BitmapUtil.class);
 
     /**
      * 编码函数
@@ -51,7 +50,7 @@ public class BitmapUtil {
         try {
             roaringBitmap.deserialize(ByteBuffer.wrap(arr));
         } catch (IOException e) {
-            LOG.error("deserializeBitmap error", e);
+            System.out.println(e);
         }
         return roaringBitmap;
     }
@@ -73,7 +72,7 @@ public class BitmapUtil {
             roaringBitmap.serialize(byteBuffer);
             return byteBuffer.array();
         } catch (Exception e) {
-            LOG.error("serializeBitmap error", e);
+            System.out.println(e);
         }
         return null;
     }
