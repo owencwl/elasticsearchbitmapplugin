@@ -21,6 +21,10 @@ package com.umxwe.elasticsearchplugin.bitmap;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.index.SortedNumericDocValues;
 import org.apache.lucene.index.SortedSetDocValues;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.ScoreMode;
+import org.apache.lucene.search.Weight;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.FixedBitSet;
 import org.elasticsearch.common.lease.Releasable;
@@ -312,4 +316,13 @@ public class BitmapAggregator extends MetricsAggregator {
     }
 
 
+    public void query() throws IOException {
+        BooleanQuery newQuery = new BooleanQuery.Builder()
+                .add(context.query(), BooleanClause.Occur.MUST)
+//                .add(new SearchAfterSortedDocQuery(applySortFieldRounding(indexSortPrefix), fieldDoc), BooleanClause.Occur.FILTER)
+                .build();
+        Weight weight = context.searcher().createWeight(context.searcher().rewrite(newQuery), ScoreMode.COMPLETE_NO_SCORES, 1f);
+//        context.searcher().search();
+
+    }
 }

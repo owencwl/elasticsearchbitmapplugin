@@ -27,6 +27,7 @@ import org.elasticsearch.search.aggregations.metrics.InternalNumericMetricsAggre
 import org.roaringbitmap.longlong.Roaring64Bitmap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xerial.snappy.Snappy;
 
 import java.io.IOException;
 import java.util.List;
@@ -93,7 +94,9 @@ public class InternalBitmap extends InternalNumericMetricsAggregation.SingleValu
     public InternalAggregation reduce(List<InternalAggregation> aggregations, ReduceContext reduceContext) {
         Roaring64Bitmap sum = new Roaring64Bitmap();
         for (InternalAggregation aggregation : aggregations) {
-            sum.or(((InternalBitmap) aggregation).sum);
+            if(((InternalBitmap) aggregation).sum !=null){
+                sum.or(((InternalBitmap) aggregation).sum);
+            }
         }
         return new InternalBitmap(name, sum, format, getMetadata());
     }
@@ -109,6 +112,11 @@ public class InternalBitmap extends InternalNumericMetricsAggregation.SingleValu
     @Override
     public XContentBuilder doXContentBody(XContentBuilder builder, Params params) throws IOException {
         LOG.info("InternalBitmap doXContentBody: Cardinalit_size: [{}]", sum.getLongCardinality());
+        /**
+         * 准备启用压缩，但是在es中会出现snappy权限报错问题
+         */
+//        builder.field(CommonFields.VALUE.getPreferredName(), Snappy.compress(BitmapUtil.serializeBitmap(sum)));
+
         builder.field(CommonFields.VALUE.getPreferredName(), BitmapUtil.serializeBitmap(sum));
         builder.field("Cardinality", sum.getLongCardinality());
         return builder;

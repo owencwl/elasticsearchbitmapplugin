@@ -7,9 +7,37 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Random;
 
 public class BitmapUtil {
 
+
+    public static void main(String[] args) {
+        /**
+         * 问题：
+         * 此代码在bitmap0.9.0和jdk1.8._251版本中，存在bug（数据越界异常）: Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: 74
+         *
+         * 解决方案：
+         * 在jdk1.8下，bitmap0.9.3以上版本已经修复了此bug。
+         */
+        Random random = new Random();
+        Roaring64Bitmap bitmap = new Roaring64Bitmap();
+        for (long i = 0; i < 20000; i++) {
+            bitmap.addLong(random.nextInt(10000000));
+        }
+
+        Roaring64Bitmap bitmap2 = new Roaring64Bitmap();
+        for (long i = 1; i < 40000; i++) {
+            int value = random.nextInt(10000000);
+            bitmap2.addLong(value);
+        }
+
+        //bit and
+        bitmap.and(bitmap2);
+
+        //to array
+        bitmap.toArray();
+    }
     /**
      * 编码函数
      * 将字符串转为long类型，通用计算逻辑：编写可逆Hash函数,且long唯一，能够实现 string <==> long 之间的转换；
