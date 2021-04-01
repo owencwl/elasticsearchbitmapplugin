@@ -1,5 +1,6 @@
 package com.umxwe.elasticsearchplugin.bitmap;
 
+import org.roaringbitmap.RoaringBitmap;
 import org.roaringbitmap.longlong.Roaring64Bitmap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +13,7 @@ import java.util.Random;
 public class BitmapUtil {
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         /**
          * 问题：
          * 此代码在bitmap0.9.0和jdk1.8._251版本中，存在bug（数据越界异常）: Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: 74
@@ -22,21 +23,21 @@ public class BitmapUtil {
          */
         Random random = new Random();
         Roaring64Bitmap bitmap = new Roaring64Bitmap();
-        for (long i = 0; i < 20000; i++) {
-            bitmap.addLong(random.nextInt(10000000));
+        for (long i = 0; i < 50000; i++) {
+//            System.out.println(random.nextLong());
+            bitmap.add(random.nextInt());
         }
-
+        Random random2= new Random();
         Roaring64Bitmap bitmap2 = new Roaring64Bitmap();
-        for (long i = 1; i < 40000; i++) {
-            int value = random.nextInt(10000000);
-            bitmap2.addLong(value);
+        for (long i = 1; i < 100000; i++) {
+            bitmap2.add( random2.nextInt());
         }
-
         //bit and
-        bitmap.and(bitmap2);
+//        bitmap.and(bitmap2);
+//
+//        System.out.println(bitmap);
+//        System.out.println(bitmap.getLongCardinality());
 
-        //to array
-        bitmap.toArray();
     }
     /**
      * 编码函数
